@@ -21,24 +21,32 @@
 
 #ifdef DEBUG
 #undef DEBUG
-#define _d(fmt, args...) { printf(fmt, ## args); }
+#define _d(fmt, args...)     \
+	{                        \
+		printf(fmt, ##args); \
+	}
 #else
 #undef DEBUG
 #define _d(fmt, args...)
 #endif
 
-#define SAFE_DELETE(x) { if (x) delete x; x = NULL; }
-#define MAX_NUM_NICS		5
+#define SAFE_DELETE(x) \
+	{                  \
+		if (x)         \
+			delete x;  \
+		x = NULL;      \
+	}
+#define MAX_NUM_NICS 5
 
-typedef struct {
+typedef struct
+{
 	int state;
 	int node;
 	int nics;
 
 	char ip[2][32];
 	char nic[MAX_NUM_NICS][32];
-}wcat_s;
+} wcat_s;
 
 extern wcat_s g;
 #endif
-

@@ -7,8 +7,10 @@ bool exit_flag_main = false;
 pthread_mutex_t sleepMutex;
 pthread_cond_t sleepCond;
 
-void sigfunc(int signum) {
-	if (signum == SIGINT || signum == SIGTERM) {
+void sigfunc(int signum)
+{
+	if (signum == SIGINT || signum == SIGTERM)
+	{
 		exit_flag_main = true;
 	}
 	pthread_cond_signal(&sleepCond);
@@ -19,7 +21,8 @@ wcat_s g;
 int read_config();
 int read_line(FILE *fp, char *name, char *value);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	CCore *pc = NULL;
 	CSender *psm = NULL;
 
@@ -36,14 +39,16 @@ int main(int argc, char *argv[]) {
 	pc = new CCore();
 	pc->Create();
 
-	if (g.role == 0) {
+	if (g.role == 0)
+	{
 		psm = new CSender();
 		psm->Create(g.ip_backup, 22000);
 	}
 
 	_d("[MAIN] started...\n");
 
-	while(!exit_flag_main) {
+	while (!exit_flag_main)
+	{
 		pthread_mutex_lock(&sleepMutex);
 		pthread_cond_wait(&sleepCond, &sleepMutex);
 		pthread_mutex_unlock(&sleepMutex);
@@ -57,31 +62,44 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-int read_config() {
+int read_config()
+{
 	FILE *fp = fopen("/opt/tnmtech/config.ini", "r");
-	if (fp) {
+	if (fp)
+	{
 		char name[256];
 		char value[256];
 
-		while(1) {
+		while (1)
+		{
 			int ret = read_line(fp, name, value);
-			if (ret < 0) {
+			if (ret < 0)
+			{
 				break;
-			} else if (ret) {
-				if (strcasestr(name, "role")) {
-					if (strcasecmp(value, "main") == 0) {
+			}
+			else if (ret)
+			{
+				if (strcasestr(name, "role"))
+				{
+					if (strcasecmp(value, "main") == 0)
+					{
 						g.role = 0;
-					} else {
+					}
+					else
+					{
 						g.role = 1;
 					}
 				}
-				if (strcasestr(name, "monitor")) {
+				if (strcasestr(name, "monitor"))
+				{
 					sprintf(g.ip, "%s", value);
-				} 
-				if (strcasestr(name, "main")) {
+				}
+				if (strcasestr(name, "main"))
+				{
 					sprintf(g.ip_main, "%s", value);
 				}
-				if (strcasestr(name, "backup")) {
+				if (strcasestr(name, "backup"))
+				{
 					sprintf(g.ip_backup, "%s", value);
 				}
 				//_d("[CONFIG] KEY : %s, VALUE : %s\n", name, value);
@@ -91,33 +109,51 @@ int read_config() {
 	}
 }
 
-int read_line(FILE *fp, char *name, char *value) {
+int read_line(FILE *fp, char *name, char *value)
+{
 	int count = 0;
 	int consumed = 0;
 	int phase = 0;
-	for (int i=0; i<256; i++) {
+	for (int i = 0; i < 256; i++)
+	{
 		char ch = fgetc(fp);
-		if (ch == EOF) {
+		if (ch == EOF)
+		{
 			//_d("[CONFIG] meet EOF\n");
 			return -1;
 		}
-		if (ch == '[') {
+		if (ch == '[')
+		{
 			phase = 2;
-		} else if (ch == '=' || ch ==':') {
+		}
+		else if (ch == '=' || ch == ':')
+		{
 			phase = 1;
 			name[count++] = 0;
-		} else if (ch == ']') {
+		}
+		else if (ch == ']')
+		{
 			phase = 3;
 			value[consumed++] = 0;
-		} else if (ch == '#') {
+		}
+		else if (ch == '#')
+		{
 			phase = 4;
-		} else if (phase == 0) {
+		}
+		else if (phase == 0)
+		{
 			name[count++] = ch;
-		} else if (phase == 2) {
+		}
+		else if (phase == 2)
+		{
 			value[consumed++] = ch;
-		} else if (ch == '\n' && phase==4) {
+		}
+		else if (ch == '\n' && phase == 4)
+		{
 			break;
-		} else if (ch == '\n' && phase==3) {
+		}
+		else if (ch == '\n' && phase == 3)
+		{
 			break;
 		}
 	}

@@ -1,15 +1,18 @@
 #include "main.h"
 #include "checker.h"
 
-CChecker::CChecker(void) {
+CChecker::CChecker(void)
+{
 	_port = 22001;
 }
 
-CChecker::~CChecker(void) {
+CChecker::~CChecker(void)
+{
 	Terminate();
 }
 
-void CChecker::Create(const char *ip, const char *nic) {
+void CChecker::Create(const char *ip, const char *nic)
+{
 	sprintf(_ip, "%s", ip);
 	sprintf(_nic, "%s", nic);
 
@@ -17,7 +20,8 @@ void CChecker::Create(const char *ip, const char *nic) {
 	Start();
 }
 
-void CChecker::Run() {
+void CChecker::Run()
+{
 	int sd = -1;
 	int len;
 	struct sockaddr_in sin;
@@ -30,7 +34,8 @@ void CChecker::Run() {
 	_d("[CHECKER] starting...\n");
 
 	sd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (sd < 0) {
+	if (sd < 0)
+	{
 		_d("[SENDER] Failed to create socket\n");
 	}
 
@@ -50,14 +55,17 @@ void CChecker::Run() {
 	memcpy(&buff[8], hostname, len);
 
 	_d("[CHECKER] started...\n");
-	while(!m_bExit) {
+	while (!m_bExit)
+	{
 		sleep(2);
 
 		int ret = Check();
-		if (ret < 0) {
+		if (ret < 0)
+		{
 			_d("[CHECKER] Critical!!!\n");
 		}
-		if (ret) {
+		if (ret)
+		{
 			_d("[CHECKER] LINK_DOWN detected at %s...\n", _nic);
 		}
 	}
@@ -65,30 +73,36 @@ void CChecker::Run() {
 	_d("[CHECKER] exiting...\n");
 	close(sd);
 	_d("[CHECKER] exited...\n");
-
 }
 
-int CChecker::Check() {
+int CChecker::Check()
+{
 	int ret = 0;
 
 	char cmd[256];
 	FILE *fp = NULL;
 
 	sprintf(cmd, "ovs-ofctl show %s | grep dpdk -A 4", _nic);
-	fp = popen(cmd, "r");	
-	if (fp) {
+	fp = popen(cmd, "r");
+	if (fp)
+	{
 		int phys = -1;
 		char buff[1024];
-		while(!m_bExit) {
+		while (!m_bExit)
+		{
 			char *line = fgets(buff, sizeof(buff), fp);
-			if (line == NULL) {
+			if (line == NULL)
+			{
 				break;
 			}
-			if (strstr(line, "dpdk")) {
+			if (strstr(line, "dpdk"))
+			{
 				phys = atoi(line);
 			}
-			if (strcasestr(line, "state")) {
-				if (strcasestr(line, "LINK_DOWN")) {
+			if (strcasestr(line, "state"))
+			{
+				if (strcasestr(line, "LINK_DOWN"))
+				{
 					_d("NIC %s.%d > state : LINK_DOWN\n", _nic, phys);
 					ret = 1;
 				}
@@ -99,5 +113,3 @@ int CChecker::Check() {
 
 	return ret;
 }
-
-

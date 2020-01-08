@@ -21,15 +21,24 @@
 
 #ifdef DEBUG
 #undef DEBUG
-#define _d(fmt, args...) { printf(fmt, ## args); }
+#define _d(fmt, args...)     \
+	{                        \
+		printf(fmt, ##args); \
+	}
 #else
 #undef DEBUG
 #define _d(fmt, args...)
 #endif
 
-#define SAFE_DELETE(x) { if (x) delete x; x = NULL; }
+#define SAFE_DELETE(x) \
+	{                  \
+		if (x)         \
+			delete x;  \
+		x = NULL;      \
+	}
 
-typedef struct {
+typedef struct
+{
 	int role; // 0-main, 1-backup
 
 	time_t begin;
@@ -38,9 +47,8 @@ typedef struct {
 
 	char ip_main[32];
 	char ip_backup[32];
-}wcat_s;
+} wcat_s;
 
 extern wcat_s g;
 
 #endif
-
