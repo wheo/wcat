@@ -3,7 +3,7 @@
 
 typedef struct
 {
-	int event; // 0-dead, 1-link down, 2-link up
+	int event; // 0-dead, 1-link down, 2-link up, // by wheo 3-link all down
 
 	char nic[32]; // nic name
 } event_s;

@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
 int read_config()
 {
-	FILE *fp = fopen("/opt/tnmtech/config.ini", "r");
+	FILE *fp = fopen("config.ini", "r");
 	if (fp)
 	{
 		char name[256];

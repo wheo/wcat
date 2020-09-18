@@ -263,6 +263,22 @@ void CRecv::Run()
 					break;
 				}
 			}
+			else if (buff[3] == 'E')
+			{
+				if (pc_temp->Link(ip, &buff[36], false))
+				{
+					pc = pc_temp;
+					break;
+				}
+			}
+			else if (buff[3] == 'F')
+			{
+				if (pc_temp->Link(ip, &buff[36], true))
+				{
+					pc = pc_temp;
+					break;
+				}
+			}
 			else
 			{
 				_d("[RECV] Unknown packet\n");
@@ -320,7 +336,7 @@ void CCore::Run()
 	int64_t elapsed;
 	CRecv *pr = new CRecv;
 
-	FILE *fp = fopen("/opt/tnmtech/log.txt", "w");
+	FILE *fp = fopen("log.txt", "w");
 
 	pr->Create();
 

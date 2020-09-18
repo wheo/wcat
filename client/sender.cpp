@@ -17,7 +17,7 @@ void CSender::Create(const char *ip, int port, char *type)
 	sprintf(_type, "%s", type);
 	_port = port;
 
-	fp = fopen("/opt/tnmtech/log.txt", "a+");
+	fp = fopen("log.txt", "a+");
 
 	Start();
 }
@@ -51,13 +51,15 @@ void CSender::Run()
 
 	buff[0] = 'T';
 	buff[1] = 'W';
-	buff[2] = 'C'; // TWCT : ALIVE state, TWCD : LINK down, TWCU : LINK up
+	buff[2] = 'C'; // TWCT : ALIVE state, TWCD : LINK down, TWCU : LINK up, TWCE : br-egress1, br-egress2 All down
 
 	gethostname(hostname, 256);
 
 	len = strlen(hostname);
 	memcpy(&buff[4], hostname, len);
 
+	//g.nics : 이더넷 개수 (현재 5개)
+	//g.nic[n] : 이더넷 장치 이름
 	for (int i = 0; i < g.nics; i++)
 	{
 		if (Check(g.nic[i]))
@@ -120,6 +122,14 @@ void CSender::Run()
 							cflag &= ~(0x1 << index);
 							send = 1;
 						}
+						if (cflag & !(0x3))
+						{
+							// 0x3 is 00011 br-egress1 down && br-egress2 down
+							buff[3] = 'E';
+							sprintf(&buff[36], "%s", "br-egress-all");
+							_d("[SENDER] %s is LINK_DOWN\n", "br-egress-all");
+							send = 1;
+						}
 					}
 					else
 					{
@@ -129,6 +139,14 @@ void CSender::Run()
 							sprintf(&buff[36], "%s", g.nic[index]);
 							_d("[SENDER] %s is LINK_UP\n", g.nic[index]);
 							cflag |= (0x1 << index);
+							send = 1;
+						}
+						if (cflag & (0x3))
+						{
+							// !0x3 is 11100 br-egress1 up && br-egress2 up
+							buff[3] = 'F';
+							sprintf(&buff[36], "%s", "br-egress-all");
+							_d("[SENDER] %s is LINK_UP\n", "br-egress-all");
 							send = 1;
 						}
 					}
@@ -164,6 +182,7 @@ int CSender::Check(const char *nic)
 	char cmd[256];
 	FILE *fp = NULL;
 
+	// node 가 compute 면 0
 	if (g.node == 0)
 	{
 		sprintf(cmd, "ovs-ofctl show %s | grep dpdk -A 4", nic);

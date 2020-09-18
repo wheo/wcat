@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
 int read_config()
 {
-	FILE *fp = fopen("/opt/tnmtech/config.ini", "r");
+	FILE *fp = fopen("config.ini", "r");
 	if (fp)
 	{
 		char name[256];
@@ -83,7 +83,7 @@ int read_config()
 			}
 			else if (ret)
 			{
-				//_d("[CONFIG] KEY : %s, VALUE : %s\n", name, value);
+				_d("[CONFIG] KEY : %s, VALUE : %s\n", name, value);
 				if (strcasestr(name, "main"))
 				{
 					sprintf(g.ip[0], "%s", value);
@@ -107,6 +107,7 @@ int read_config()
 				{
 					char nicname[32];
 					sprintf(nicname, "nic%d", i);
+
 					if (strcasestr(name, nicname))
 					{
 						sprintf(g.nic[g.nics], "%s", value);
