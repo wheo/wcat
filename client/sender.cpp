@@ -31,7 +31,7 @@ void CSender::Run()
 	char buff[256]; // 4 (header) | 32 (hostname) | 28 (NIC name) = 64 bytes
 	char hostname[256];
 
-	//int scount = 1; // per 3sec but send once ASAP
+	int scount = 1; // per 3sec but send once ASAP
 	int ccount = 2; // per 2sec
 	int cindex = 0;
 	int cflag = 0x1f;
@@ -77,7 +77,7 @@ void CSender::Run()
 	while (!m_bExit)
 	{
 		sleep(1);
-#if 0
+
 		if (strcmp(_type, (char *)"alive") == 0)
 		{
 			if (scount)
@@ -102,7 +102,7 @@ void CSender::Run()
 				}
 			}
 		}
-#endif
+
 		if (strcmp(_type, (char *)"nic") == 0)
 		{
 			if (ccount)
