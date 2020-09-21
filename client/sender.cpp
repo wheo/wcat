@@ -24,9 +24,8 @@ void CSender::Create(const char *ip, int port, char *type)
 
 void CSender::Run()
 {
-	int sd = -1;
+	sd = -1;
 	int len;
-	struct sockaddr_in sin;
 
 	char buff[256]; // 4 (header) | 32 (hostname) | 28 (NIC name) = 64 bytes
 	char hostname[256];
@@ -110,7 +109,7 @@ void CSender::Run()
 				ccount--;
 				if (ccount == 0)
 				{
-					int send = 0;
+					//int send = 0;
 					int index = cindex % g.nics;
 					if (Check(g.nic[index]))
 					{
@@ -120,7 +119,8 @@ void CSender::Run()
 							sprintf(&buff[36], "%s", g.nic[index]);
 							_d("[SENDER] %s is LINK_DOWN(%d)\n", g.nic[index], index);
 							cflag &= ~(0x1 << index);
-							send = 1;
+							//send = 1;
+							Send(buff);
 
 							if (index < 2)
 							{
@@ -130,7 +130,8 @@ void CSender::Run()
 									buff[3] = 'E';
 									sprintf(&buff[36], "%s", "br-egress-all");
 									_d("[SENDER] %s is LINK_DOWN\n", "br-egress-all");
-									send = 2;
+									//send = 2;
+									Send(buff);
 								}
 							}
 						}
@@ -143,49 +144,27 @@ void CSender::Run()
 							sprintf(&buff[36], "%s", g.nic[index]);
 							_d("[SENDER] %s is LINK_UP(%d)\n", g.nic[index], index);
 							cflag |= (0x1 << index);
-							PrintFlag(cflag);
-							send = 1;
+							//PrintFlag(cflag);
+							//send = 1;
+							Send(buff);
 
 							if (index < 2)
 							{
 								if (cflag & (0x1) && cflag & (0x2))
 								{
 									//_d("all up(index : %d), %s : ", index, _ip);
-									PrintFlag(cflag);
+									//PrintFlag(cflag);
 									// !0x3 is 00011 br-egress1 up && br-egress2 up
 									buff[3] = 'F';
 									sprintf(&buff[36], "%s", "br-egress-all");
 									_d("[SENDER] %s is LINK_UP\n", "br-egress-all");
-									send = 2;
+									//send = 3;
+									Send(buff);
 								}
 							}
 						}
 					}
-					if (send == 1)
-					{
-						int sended = sendto(sd, buff, 64, 0, (struct sockaddr *)&sin, sizeof(sin));
-						if (sended < 64)
-						{
-							_d("[SENDER] Failed to send link state (%d)\n", sended);
-						}
-						else
-						{
-							_d("[SENDER] Success to send link state (%d)\n", sended);
-						}
-					}
 
-					if (send == 2)
-					{
-						int sended = sendto(sd, buff, 64, 0, (struct sockaddr *)&sin, sizeof(sin));
-						if (sended < 64)
-						{
-							_d("[SENDER] Failed to send link state (%d)\n", sended);
-						}
-						else
-						{
-							_d("[SENDER] Success to send link state (%d)\n", sended);
-						}
-					}
 					ccount = 2;
 					cindex++;
 				}
@@ -197,6 +176,20 @@ void CSender::Run()
 
 	close(sd);
 	_d("[SENDER] exited...\n");
+}
+
+int CSender::Send(char *buff)
+{
+	int sended = sendto(sd, buff, 64, 0, (struct sockaddr *)&sin, sizeof(sin));
+	if (sended < 64)
+	{
+		_d("[SENDER] (%s) Failed to send link state (%d)\n", &buff[36], sended);
+	}
+	else
+	{
+		_d("[SENDER] (%s) Success to send link state (%d)\n", &buff[36], sended);
+	}
+	return sended;
 }
 
 void CSender::PrintFlag(int flag)
