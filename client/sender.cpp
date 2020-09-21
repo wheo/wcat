@@ -124,8 +124,9 @@ void CSender::Run()
 
 							if (index < 2)
 							{
-								if ((cflag | ~(0x03)) == cflag)
+								if ((cflag | ~(0xFFFFFFE3)) == cflag)
 								{
+									// ~(0xFFFFFFE3) : 11111111 11111111 11111111 11100011
 									// 0x3 is 00011 br-egress1 down && br-egress2 down
 									buff[3] = 'E';
 									sprintf(&buff[36], "%s", "br-egress-all");
