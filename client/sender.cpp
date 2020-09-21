@@ -122,7 +122,7 @@ void CSender::Run()
 							//send = 1;
 							Send(buff);
 
-							if (index < 2)
+							if (index < 2 && g.node == 0)
 							{
 								if ((cflag & 0x3) == 0x00)
 								{
@@ -147,7 +147,7 @@ void CSender::Run()
 							//send = 1;
 							Send(buff);
 
-							if (index < 2)
+							if (index < 2 && g.node == 0)
 							{
 								if (cflag & (0x1) && cflag & (0x2))
 								{
