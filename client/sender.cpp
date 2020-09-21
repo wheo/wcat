@@ -126,7 +126,6 @@ void CSender::Run()
 							{
 								if ((cflag & 0x3) == 0x00)
 								{
-									// 0x3 is 00011 br-egress1 down && br-egress2 down
 									buff[3] = 'E';
 									sprintf(&buff[36], "%s", "br-egress-all");
 									_d("[SENDER] %s is LINK_DOWN\n", "br-egress-all");

@@ -68,7 +68,7 @@ void CClient::Alive()
 		fflush(fp);
 	}
 
-	if ((cur - _time_last) >= 180)
+	if ((cur - _time_last) >= 20)
 	{
 		if (_alive == 2)
 		{
