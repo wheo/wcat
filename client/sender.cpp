@@ -124,7 +124,7 @@ void CSender::Run()
 
 							if (index < 2)
 							{
-								if (!(cflag & ~(0x1)) && (!(cflag & ~(0x2))))
+								if ((cflag | ~(0x03)) == cflag)
 								{
 									// 0x3 is 00011 br-egress1 down && br-egress2 down
 									buff[3] = 'E';
