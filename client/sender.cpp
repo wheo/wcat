@@ -7,8 +7,8 @@ CSender::CSender(void)
 
 CSender::~CSender(void)
 {
-	fclose(fp);
 	Terminate();
+	//fclose(fpLog);
 }
 
 void CSender::Create(const char *ip, int port, char *type)
@@ -17,7 +17,7 @@ void CSender::Create(const char *ip, int port, char *type)
 	sprintf(_type, "%s", type);
 	_port = port;
 
-	fp = fopen("log.txt", "a+");
+	//fpLog = fopen("log.txt", "a+");
 
 	Start();
 }
@@ -31,7 +31,7 @@ void CSender::Run()
 	char buff[256]; // 4 (header) | 32 (hostname) | 28 (NIC name) = 64 bytes
 	char hostname[256];
 
-	int scount = 1; // per 3sec but send once ASAP
+	//int scount = 1; // per 3sec but send once ASAP
 	int ccount = 2; // per 2sec
 	int cindex = 0;
 	int cflag = 0x1f;
@@ -77,7 +77,7 @@ void CSender::Run()
 	while (!m_bExit)
 	{
 		sleep(1);
-
+#if 0
 		if (strcmp(_type, (char *)"alive") == 0)
 		{
 			if (scount)
@@ -102,7 +102,7 @@ void CSender::Run()
 				}
 			}
 		}
-
+#endif
 		if (strcmp(_type, (char *)"nic") == 0)
 		{
 			if (ccount)
@@ -118,17 +118,21 @@ void CSender::Run()
 						{
 							buff[3] = 'D';
 							sprintf(&buff[36], "%s", g.nic[index]);
-							_d("[SENDER] %s is LINK_DOWN\n", g.nic[index]);
+							_d("[SENDER] %s is LINK_DOWN(%d)\n", g.nic[index], index);
 							cflag &= ~(0x1 << index);
 							send = 1;
-						}
-						if (cflag & !(0x3))
-						{
-							// 0x3 is 00011 br-egress1 down && br-egress2 down
-							buff[3] = 'E';
-							sprintf(&buff[36], "%s", "br-egress-all");
-							_d("[SENDER] %s is LINK_DOWN\n", "br-egress-all");
-							send = 1;
+
+							if (index < 2)
+							{
+								if (!(cflag & ~(0x1)) && (!(cflag & ~(0x2))))
+								{
+									// 0x3 is 00011 br-egress1 down && br-egress2 down
+									buff[3] = 'E';
+									sprintf(&buff[36], "%s", "br-egress-all");
+									_d("[SENDER] %s is LINK_DOWN\n", "br-egress-all");
+									send = 2;
+								}
+							}
 						}
 					}
 					else
@@ -137,20 +141,40 @@ void CSender::Run()
 						{
 							buff[3] = 'U';
 							sprintf(&buff[36], "%s", g.nic[index]);
-							_d("[SENDER] %s is LINK_UP\n", g.nic[index]);
+							_d("[SENDER] %s is LINK_UP(%d)\n", g.nic[index], index);
 							cflag |= (0x1 << index);
+							PrintFlag(cflag);
 							send = 1;
-						}
-						if (cflag & (0x3))
-						{
-							// !0x3 is 11100 br-egress1 up && br-egress2 up
-							buff[3] = 'F';
-							sprintf(&buff[36], "%s", "br-egress-all");
-							_d("[SENDER] %s is LINK_UP\n", "br-egress-all");
-							send = 1;
+
+							if (index < 2)
+							{
+								if (cflag & (0x1) && cflag & (0x2))
+								{
+									//_d("all up(index : %d), %s : ", index, _ip);
+									PrintFlag(cflag);
+									// !0x3 is 00011 br-egress1 up && br-egress2 up
+									buff[3] = 'F';
+									sprintf(&buff[36], "%s", "br-egress-all");
+									_d("[SENDER] %s is LINK_UP\n", "br-egress-all");
+									send = 2;
+								}
+							}
 						}
 					}
-					if (send)
+					if (send == 1)
+					{
+						int sended = sendto(sd, buff, 64, 0, (struct sockaddr *)&sin, sizeof(sin));
+						if (sended < 64)
+						{
+							_d("[SENDER] Failed to send link state (%d)\n", sended);
+						}
+						else
+						{
+							_d("[SENDER] Success to send link state (%d)\n", sended);
+						}
+					}
+
+					if (send == 2)
 					{
 						int sended = sendto(sd, buff, 64, 0, (struct sockaddr *)&sin, sizeof(sin));
 						if (sended < 64)
@@ -173,6 +197,16 @@ void CSender::Run()
 
 	close(sd);
 	_d("[SENDER] exited...\n");
+}
+
+void CSender::PrintFlag(int flag)
+{
+	std::cout << "flag : ";
+	for (int i = MAX_NUM_NICS; i >= 0; i--)
+	{
+		std::cout << ((flag >> i) & 1);
+	}
+	std::cout << std::endl;
 }
 
 int CSender::Check(const char *nic)

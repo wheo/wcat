@@ -263,17 +263,9 @@ void CRecv::Run()
 					break;
 				}
 			}
-			else if (buff[3] == 'E')
+			else if (buff[3] == 'E' || buff[3] == 'F')
 			{
-				if (pc_temp->Link(ip, &buff[36], false))
-				{
-					pc = pc_temp;
-					break;
-				}
-			}
-			else if (buff[3] == 'F')
-			{
-				if (pc_temp->Link(ip, &buff[36], true))
+				if (pc_temp->Link(ip, &buff[36], buff[3] == 'U' ? true : false))
 				{
 					pc = pc_temp;
 					break;
