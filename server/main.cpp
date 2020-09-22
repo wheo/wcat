@@ -32,7 +32,11 @@ int main(int argc, char *argv[])
 	signal(SIGTERM, sigfunc);
 	signal(SIGHUP, sigfunc);
 
-	read_config();
+	if (!read_config())
+	{
+		_d("[MAIN] config.ini not found so Exit\n");
+		exit(1);
+	}
 
 	_d("[MAIN] Role = %s, IP address = %s(monitoring server), IP = %s/%s(main/backup)\n", g.role ? "backup" : "main", g.ip, g.ip_main, g.ip_backup);
 
@@ -64,7 +68,12 @@ int main(int argc, char *argv[])
 
 int read_config()
 {
-	FILE *fp = fopen("config.ini", "r");
+	FILE *fp;
+	fp = fopen("config.ini", "r");
+	if (!fp)
+	{
+		fp = fopen("/opt/tnmtech/config.ini", "r");
+	}
 	if (fp)
 	{
 		char name[256];
