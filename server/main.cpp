@@ -115,6 +115,11 @@ int read_config()
 			}
 		}
 		fclose(fp);
+		return 1;
+	}
+	else
+	{
+		return 0;
 	}
 }
 
