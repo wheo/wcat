@@ -410,7 +410,7 @@ void CCore::Run()
 							}
 							else if (pes->event == 1)
 							{
-								if (!strcmp(pes->nic, "br-egress-all.down"))
+								if (!strcmp(pes->nic, "br-egress-all"))
 								{
 									sprintf(msg, "\'%s|HOST.Nic3ConnectivityLostOfEgress.%s.down|%s %s Host %s NIC down.\'", pc->GetIpAddr(), pes->nic, pc->GetIpAddr(), pc->GetHostname(), pes->nic);
 								}
@@ -421,7 +421,7 @@ void CCore::Run()
 							}
 							else if (pes->event == 2)
 							{
-								if (!strcmp(pes->nic, "br-egress-all.down"))
+								if (!strcmp(pes->nic, "br-egress-all"))
 								{
 									sprintf(msg, "\'%s|HOST.Nic3ConnectivityLostOfEgress.%s.up|%s %s Host %s NIC up.\'", pc->GetIpAddr(), pes->nic, pc->GetIpAddr(), pc->GetHostname(), pes->nic);
 								}
