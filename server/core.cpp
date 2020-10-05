@@ -64,7 +64,7 @@ void CClient::Alive()
 
 	if ((cur - _time_last) > 3)
 	{
-		fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] [%s] cur - time_last : %d, _alive : %d\n", st.tm_year + 1900, st.tm_mon + 1, st.tm_mday, st.tm_hour, st.tm_min, st.tm_sec, _ip, cur - _time_last, _alive);
+		fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] [%s] cur - time_last : %ld, _alive : %d\n", st.tm_year + 1900, st.tm_mon + 1, st.tm_mday, st.tm_hour, st.tm_min, st.tm_sec, _ip, cur - _time_last, _alive);
 		fflush(fp);
 	}
 
@@ -410,11 +410,25 @@ void CCore::Run()
 							}
 							else if (pes->event == 1)
 							{
-								sprintf(msg, "\'%s|HOST.Nic3ConnectivityLost.%s.down|%s %s Host %s NIC down.\'", pc->GetIpAddr(), pes->nic, pc->GetIpAddr(), pc->GetHostname(), pes->nic);
+								if (!strcmp(pes->nic, "br-egress-all.down"))
+								{
+									sprintf(msg, "\'%s|HOST.Nic3ConnectivityLostOfEgress.%s.down|%s %s Host %s NIC down.\'", pc->GetIpAddr(), pes->nic, pc->GetIpAddr(), pc->GetHostname(), pes->nic);
+								}
+								else
+								{
+									sprintf(msg, "\'%s|HOST.Nic3ConnectivityLost.%s.down|%s %s Host %s NIC down.\'", pc->GetIpAddr(), pes->nic, pc->GetIpAddr(), pc->GetHostname(), pes->nic);
+								}
 							}
 							else if (pes->event == 2)
 							{
-								sprintf(msg, "\'%s|HOST.Nic3ConnectivityLost.%s.up|%s %s Host %s NIC up.\'", pc->GetIpAddr(), pes->nic, pc->GetIpAddr(), pc->GetHostname(), pes->nic);
+								if (!strcmp(pes->nic, "br-egress-all.down"))
+								{
+									sprintf(msg, "\'%s|HOST.Nic3ConnectivityLostOfEgress.%s.up|%s %s Host %s NIC up.\'", pc->GetIpAddr(), pes->nic, pc->GetIpAddr(), pc->GetHostname(), pes->nic);
+								}
+								else
+								{
+									sprintf(msg, "\'%s|HOST.Nic3ConnectivityLost.%s.up|%s %s Host %s NIC up.\'", pc->GetIpAddr(), pes->nic, pc->GetIpAddr(), pc->GetHostname(), pes->nic);
+								}
 							}
 							else
 							{
